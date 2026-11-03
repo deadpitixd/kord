@@ -1,0 +1,22 @@
+//
+// Created by piti on 11/3/26.
+//
+
+#ifndef KORD_STATIC_DEFINITIONS_H
+#define KORD_STATIC_DEFINITIONS_H
+
+#define KORD_VERSION_MAJOR 0
+#define KORD_VERSION_PATCH 0
+#define KORD_VERSION_MINOR 0
+
+// num to str
+#define KORD_STR2(x) #x
+#define KORD_STR(x) KORD_STR2(x)
+
+// version string from numbers
+#define KORD_VERSION_STRING \
+KORD_STR(KORD_VERSION_MAJOR) "." \
+KORD_STR(KORD_VERSION_PATCH) "." \
+KORD_STR(KORD_VERSION_MINOR)
+
+#endif //KORD_STATIC_DEFINITIONS_H
