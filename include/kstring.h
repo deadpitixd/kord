@@ -45,6 +45,7 @@ static inline void kStrResize(kString *str, size_t newSize) {
 
 // piti - appends other to str
 static inline void kStrAppend(kString* str, const char* other) {
+    if (str == nullptr) return;
     const size_t otherSize = strlen(other);
     if (otherSize + str->length >= str->size) {
         kStrResize(str, (size_t)((float)str->size * 1.5f) + otherSize);
@@ -58,6 +59,7 @@ static inline void kStrAppend(kString* str, const char* other) {
 
 // piti - sets str to other
 static inline void kStrSet(kString* str, const char* other) {
+    if (str == nullptr) return;
     if (!other)
         other = "";
     const size_t otherSize = strlen(other);
