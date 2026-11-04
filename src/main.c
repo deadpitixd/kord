@@ -23,15 +23,17 @@ int main(const int argc, char** argv) {
         printf("Failed to load test.krd\n");
     }
 
-    printf("File:\n%s\nOf size: %ld\n",kLoadFile("test.krd", &fileSize), fileSize);
+    printf("File:\n%s\nOf size: %ld\n",sourceFile, fileSize);
 
     kLexer lexer = {
         .source = sourceFile, .cursor = 0, .sourceLength = fileSize,
         .length = 0, .offset = 0
     };
 
-    const kToken token = kLexerGetNextToken(&lexer);
-    printf("Got token %d of value %s\n", token.type, token.lexeme.buffer);
+    while (!kLexerIsAtEnd(&lexer)) {
+        const kToken token = kLexerGetNextToken(&lexer);
+        printf("TOKEN %d | %s\n", token.type, token.lexeme.buffer);
+    }
 
     return 0;
 }
