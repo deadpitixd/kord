@@ -11,7 +11,7 @@
 // piti - loads a file into a string
 static char* kLoadFile(const char *filename, size_t *outSize) {
     FILE *file = fopen(filename, "rb");
-    if (!file) return NULL;
+    if (!file) return nullptr;
 
     // gets the file size
     fseek(file, 0, SEEK_END);
@@ -20,14 +20,14 @@ static char* kLoadFile(const char *filename, size_t *outSize) {
 
     if (length < 0) {
         fclose(file);
-        return NULL;
+        return nullptr;
     }
 
     // allocates buffer
     char *buffer = (char*)malloc(length + 1);
     if (!buffer) {
         fclose(file);
-        return NULL;
+        return nullptr;
     }
 
     const size_t readBytes = fread(buffer, 1, length, file);
