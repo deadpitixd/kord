@@ -5,6 +5,7 @@
 #ifndef KORD_KSTRING_H
 #define KORD_KSTRING_H
 
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
@@ -57,6 +58,12 @@ static inline void kStrAppend(kString* str, const char* other) {
     str->buffer[str->length] = '\0';
 }
 
+// piti - appends other char to str
+static void kStrAppendC(kString* str, const char other) {
+    const char tempStr[2] = { other, '\0' };
+    kStrAppend(str, tempStr);
+}
+
 // piti - sets str to other
 static inline void kStrSet(kString* str, const char* other) {
     if (str == nullptr) return;
@@ -83,6 +90,12 @@ static inline bool kStrEquals(kString* str, kString* other) {
     return strcmp(str->buffer, other->buffer) == 0;
 }
 
+// piti - checks if string is empty
+[[nodiscard]]
+static bool kStrIsEmpty(const kString* str) {
+    return str->length == 0 || str->buffer[0] == '\0';
+}
+
 // piti - duplicates a kstr
 [[nodiscard]]
 static inline kString kStrDup(const kString* str) {
@@ -93,6 +106,26 @@ static inline kString kStrDup(const kString* str) {
     return dupe;
 }
 
+typedef struct {
+    bool isFloatingPoint;
+    bool isNumeric;
+} kIsStrNumericOutput;
+
+[[nodiscard]]
+static kIsStrNumericOutput kIsStringNumeric(const kString* str) {
+    bool hasDot = false;
+    for (size_t i = 0; i < str->length; i++) {
+        if (isdigit(str->buffer[i]) == 0) {
+            if (str->buffer[i] == '.') {
+                if (hasDot) return (kIsStrNumericOutput) { .isNumeric = false };
+                hasDot = true;
+                continue;
+            }
+            return (kIsStrNumericOutput) { .isNumeric = false };
+        }
+    }
+    return (kIsStrNumericOutput) { .isNumeric = true, .isFloatingPoint = hasDot };
+}
 
 static inline void kStrDestroy(kString* str) {
     free(str->buffer);
