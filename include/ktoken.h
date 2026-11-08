@@ -42,6 +42,9 @@ typedef enum : uint8_t {
     TOKEN_LPAREN, // (
     TOKEN_RPAREN, // )
 
+    TOKEN_GREATER, // >
+    TOKEN_LESS, // <
+
     TOKEN_SEMICOLON,
 
     TOKEN_IDENTIFIER,
@@ -110,6 +113,8 @@ static kTokenType kLexerGetTokenTypeFromStr(const kString *string) {
     if (!strcmp(string->buffer, "}")) return TOKEN_RBRACE;
     if (!strcmp(string->buffer, "(")) return TOKEN_LPAREN;
     if (!strcmp(string->buffer, ")")) return TOKEN_RPAREN;
+    if (!strcmp(string->buffer, ">")) return TOKEN_GREATER;
+    if (!strcmp(string->buffer, "<")) return TOKEN_LESS;
 
     const kIsStrNumericOutput temp = kIsStringNumeric(string);
     if (temp.isNumeric) return temp.isFloatingPoint ? TOKEN_DOUBLE : TOKEN_INT;
@@ -117,10 +122,55 @@ static kTokenType kLexerGetTokenTypeFromStr(const kString *string) {
     return TOKEN_IDENTIFIER;
 }
 
+// piti - joins tokens into symbols, example:
+// '-' + '>' = '->'
+// ONLY USED BY THE LEXER
+[[nodiscard]]
+[[nodiscard]]
+static kToken kLexerHandleJoining(const char c, kLexer *lexer, kString *string, const size_t offset) {
+    switch (c) {
+        case '-': {
+            if (kLexerPeek(lexer) == '>') {
+                kLexerAdvance(lexer);
+                kStrAppendC(string, '>');
+                return (kToken) { .type = TOKEN_RIGHT_ARROW, .offset = offset, .length = lexer->cursor - offset, .lexeme = *string
+                };
+            }
+            break;
+        }
+        case '<': {
+            if (kLexerPeek(lexer) == '-') {
+                kLexerAdvance(lexer);
+                kStrAppendC(string, '-');
+                return (kToken) {.type = TOKEN_LEFT_ARROW,.offset = offset,.length = lexer->cursor - offset,.lexeme = *string
+                };
+            }
+            break;
+        }
+        case '=': {
+            if (kLexerPeek(lexer) == '=') {
+                kLexerAdvance(lexer);
+                kStrAppendC(string, '=');
+                return (kToken) {.type = TOKEN_EQUALS, .offset = offset, .length = lexer->cursor - offset, .lexeme = *string
+                };
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    return (kToken) {
+        .type = kLexerGetTokenTypeFromStr(string),
+        .lexeme = *string,
+        .length = lexer->cursor - offset,
+        .offset = offset
+    };
+}
 [[nodiscard]]
 static kToken kLexerGetNextToken(kLexer *lexer) {
     // skip whitespace
-    while (!kLexerIsAtEnd(lexer) && lexer->source[lexer->cursor] == ' ') {
+    while (!kLexerIsAtEnd(lexer) && isspace((unsigned char)lexer->source[lexer->cursor])) {
         lexer->cursor++;
     }
 
@@ -148,13 +198,40 @@ static kToken kLexerGetNextToken(kLexer *lexer) {
     kString tokStr;
     kStrMake(&tokStr);
 
+    // strings
+    if (c == '"') {
+        lexer->cursor++;
+
+        while (!kLexerIsAtEnd(lexer) && lexer->source[lexer->cursor] != '"') {
+            kStrAppendC(&tokStr, lexer->source[lexer->cursor]);
+            lexer->cursor++;
+        }
+
+        if (!kLexerIsAtEnd(lexer)) {
+            lexer->cursor++; // skip closing quote
+        }
+
+        return (kToken){
+            .type = TOKEN_STRING,
+            .lexeme = tokStr,
+            .length = lexer->cursor - startOffset,
+            .offset = startOffset
+        };
+    }
+
+    bool isText = false;
     while (!kLexerIsAtEnd(lexer)) {
         c = lexer->source[lexer->cursor];
+        isText = isalpha(c) || isText;
         if (c == ' ' || c == ';') {
+            break;
+        }
+        if (isText && !isalpha(c)) {
             break;
         }
         kStrAppendC(&tokStr, c);
         lexer->cursor++;
+        if (!isalpha(c)) return kLexerHandleJoining(c, lexer, &tokStr, startOffset);
     }
 
     return (kToken) {
