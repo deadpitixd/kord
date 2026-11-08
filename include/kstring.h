@@ -133,4 +133,6 @@ static inline void kStrDestroy(kString* str) {
     str->size =   0;
 }
 
+#define kCharToCStr(x) (char[2]){ x, '\0' }
+
 #endif //KORD_KSTRING_H
