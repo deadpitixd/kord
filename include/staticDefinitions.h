@@ -19,6 +19,9 @@ KORD_STR(KORD_VERSION_MAJOR) "." \
 KORD_STR(KORD_VERSION_PATCH) "." \
 KORD_STR(KORD_VERSION_MINOR)
 
+// help stuff
+#define KORD_HELP "kord [file] - Run file\n"
+
 // controls
 const char* kC_reset      = "\033[0m";
 const char* kC_clear      = "\033[2J\033[H";
