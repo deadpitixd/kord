@@ -1,3 +1,4 @@
-fn main() -> int {
+fn main() -> i32 {
+    i16 x = 123;
     print("Hello World!");
 }

@@ -219,19 +219,34 @@ static kToken kLexerGetNextToken(kLexer *lexer) {
         };
     }
 
-    bool isText = false;
+    if (isalpha(c) || c == '_') {
+        while (!kLexerIsAtEnd(lexer)) {
+            const char cur = lexer->source[lexer->cursor];
+            // allow lets, digits and underscores
+            if (isalnum((unsigned char)cur) || cur == '_') {
+                kStrAppendC(&tokStr, cur);
+                lexer->cursor++;
+            } else {
+                break;
+            }
+        }
+
+        return (kToken) {
+            .type = kLexerGetTokenTypeFromStr(&tokStr),
+            .lexeme = tokStr,
+            .length = lexer->cursor - startOffset,
+            .offset = startOffset
+        };
+    }
+
     while (!kLexerIsAtEnd(lexer)) {
         c = lexer->source[lexer->cursor];
-        isText = isalpha(c) || isText;
         if (c == ' ' || c == ';') {
-            break;
-        }
-        if (isText && !isalpha(c)) {
             break;
         }
         kStrAppendC(&tokStr, c);
         lexer->cursor++;
-        if (!isalpha(c)) return kLexerHandleJoining(c, lexer, &tokStr, startOffset);
+        if (!isalpha(c) && !isdigit(c)) return kLexerHandleJoining(c, lexer, &tokStr, startOffset);
     }
 
     return (kToken) {
