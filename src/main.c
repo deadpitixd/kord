@@ -6,21 +6,25 @@
 #include <ktoken.h>
 
 int main(const int argc, char** argv) {
-    if (argc == 1)
+    if (argc == 1) {
         printf(
             "Kord - v" KORD_VERSION_STRING "\n"
                     "LGPLv2 License, Made by %s@piti%s on GitHub\n"
                     "Available on deadpitixd/kord\n"
                     "Use %s--help%s for more information\n", kC_b_green, kC_reset, kC_b_red, kC_reset);
-
-
+        return 0;
+    }
+    if (!strcmp(argv[1], "--help")) {
+        printf(KORD_HELP);
+        return 0;
+    }
     size_t fileSize = 0;
     const char *sourceFile = kLoadFile("test.krd", &fileSize);
     if (sourceFile) {
-        printf("Loaded test.krd successfully\n");
+        printf("Loaded %s successfully\n", argv[1]);
     }
     else {
-        printf("Failed to load test.krd\n");
+        printf("Failed to load %s\n", argv[1]);
     }
 
     printf("File:\n%s\nOf size: %ld\n",sourceFile, fileSize);

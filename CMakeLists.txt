@@ -1,6 +1,16 @@
-cmake_minimum_required(VERSION 4.2)
+cmake_minimum_required(VERSION 3.15)
 project(kord C)
 
 set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
-add_executable(kord main.c)
+add_executable(kord
+        src/main.c
+        include/staticDefinitions.h
+        include/kstring.h
+        include/kvariant.h
+        include/ktoken.h
+        include/kfile.h
+)
+
+target_include_directories(kord PRIVATE include)
