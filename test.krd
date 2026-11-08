@@ -1,1 +1,3 @@
-fn main() -> int {b
+fn main() -> int {
+    print("Hello World!");
+}

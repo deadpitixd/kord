@@ -27,7 +27,7 @@ int main(const int argc, char** argv) {
         printf("Failed to load %s\n", argv[1]);
     }
 
-    printf("File:\n%s\nOf size: %ld\n",sourceFile, fileSize);
+    printf("File:\n%s\nOf size: %lld\n",sourceFile, fileSize);
 
     kLexer lexer = {
         .source = sourceFile, .cursor = 0, .sourceLength = fileSize,
