@@ -33,6 +33,15 @@ typedef enum : uint8_t {
 
     TOKEN_FUNC_DEF, // fn
 
+    TOKEN_RIGHT_ARROW, // ->
+    TOKEN_LEFT_ARROW, // <-
+
+    TOKEN_LBRACE, // {
+    TOKEN_RBRACE, // )
+
+    TOKEN_LPAREN, // (
+    TOKEN_RPAREN, // )
+
     TOKEN_SEMICOLON,
 
     TOKEN_IDENTIFIER,
@@ -95,6 +104,12 @@ static kTokenType kLexerGetTokenTypeFromStr(const kString *string) {
     if (!strcmp(string->buffer, "=")) return TOKEN_ASSIGN;
     if (!strcmp(string->buffer, "==")) return TOKEN_EQUALS;
     if (!strcmp(string->buffer, ";")) return TOKEN_SEMICOLON;
+    if (!strcmp(string->buffer, "->")) return TOKEN_RIGHT_ARROW;
+    if (!strcmp(string->buffer, "<-")) return TOKEN_LEFT_ARROW;
+    if (!strcmp(string->buffer, "{")) return TOKEN_LBRACE;
+    if (!strcmp(string->buffer, "}")) return TOKEN_RBRACE;
+    if (!strcmp(string->buffer, "(")) return TOKEN_LPAREN;
+    if (!strcmp(string->buffer, ")")) return TOKEN_RPAREN;
 
     const kIsStrNumericOutput temp = kIsStringNumeric(string);
     if (temp.isNumeric) return temp.isFloatingPoint ? TOKEN_DOUBLE : TOKEN_INT;
