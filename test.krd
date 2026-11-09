@@ -1,4 +1,7 @@
 fn main() -> i32 {
+    uc16 y;
+    uc8 y;
     i16 x = 123;
     print("Hello World!");
+    ulong;
 }

@@ -11,6 +11,7 @@ add_executable(kord
         include/kvariant.h
         include/ktoken.h
         include/kfile.h
+        include/kerror.h
 )
 
 target_include_directories(kord PRIVATE include)
