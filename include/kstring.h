@@ -127,6 +127,14 @@ static kIsStrNumericOutput kIsStringNumeric(const kString* str) {
     return (kIsStrNumericOutput) { .isNumeric = true, .isFloatingPoint = hasDot };
 }
 
+[[nodiscard]]
+static kString kStrMakeFromC(const char *buffer) {
+    kString str;
+    kStrMake(&str);
+    kStrSet(&str, buffer);
+    return str;
+}
+
 static inline void kStrDestroy(kString* str) {
     free(str->buffer);
     str->length = 0;
