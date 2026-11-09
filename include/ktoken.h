@@ -8,6 +8,8 @@
 #include <stdint.h>
 #include <kstring.h>
 
+#include "kerror.h"
+
 typedef enum : uint8_t {
     TOKEN_STRING, // "text"
     TOKEN_DOUBLE, // double literal
@@ -44,6 +46,16 @@ typedef enum : uint8_t {
 
     TOKEN_GREATER, // >
     TOKEN_LESS, // <
+
+    TOKEN_I8,
+    TOKEN_I16,
+    TOKEN_I32,
+    TOKEN_I64,
+
+    TOKEN_UI8,
+    TOKEN_UI16,
+    TOKEN_UI32,
+    TOKEN_UI64,
 
     TOKEN_SEMICOLON,
 
@@ -125,7 +137,6 @@ static kTokenType kLexerGetTokenTypeFromStr(const kString *string) {
 // piti - joins tokens into symbols, example:
 // '-' + '>' = '->'
 // ONLY USED BY THE LEXER
-[[nodiscard]]
 [[nodiscard]]
 static kToken kLexerHandleJoining(const char c, kLexer *lexer, kString *string, const size_t offset) {
     switch (c) {
@@ -218,6 +229,62 @@ static kToken kLexerGetNextToken(kLexer *lexer) {
             .offset = startOffset
         };
     }
+
+    bool isTypeUnsigned = false;
+    if (c == 'u') {
+        isTypeUnsigned = true;
+        lexer->cursor++;
+    }
+
+    // types
+    if (kLexerPeek(lexer) == 'i') {
+        kLexerAdvance(lexer);
+        if (isTypeUnsigned) kStrAppendC(&tokStr, 'u');
+        kStrAppendC(&tokStr, 'i');
+        while (!kLexerIsAtEnd(lexer) && isdigit(lexer->source[lexer->cursor])) {
+            kStrAppendC(&tokStr, lexer->source[lexer->cursor]);
+            lexer->cursor++;
+        }
+        kTokenType outputType = TOKEN_I8;
+        if (!isTypeUnsigned) {
+            if (!strcmp(tokStr.buffer, "i8")) outputType = TOKEN_I8;
+            if (!strcmp(tokStr.buffer, "i16")) outputType = TOKEN_I16;
+            if (!strcmp(tokStr.buffer, "i32")) outputType = TOKEN_I32;
+            if (!strcmp(tokStr.buffer, "i64")) outputType = TOKEN_I64;
+        }else {
+            if (!strcmp(tokStr.buffer, "ui8")) outputType = TOKEN_UI8;
+            if (!strcmp(tokStr.buffer, "ui16")) outputType = TOKEN_UI16;
+            if (!strcmp(tokStr.buffer, "ui32")) outputType = TOKEN_UI32;
+            if (!strcmp(tokStr.buffer, "ui64")) outputType = TOKEN_UI64;
+        }
+        isTypeUnsigned = false;
+        return (kToken){.type = outputType, .length = lexer->length - startOffset, .lexeme = tokStr, .offset = startOffset };
+    }
+
+    // char
+    // piti - chars are macros for ints
+    if (kLexerPeek(lexer) == 'c') {
+        kStrAppendC(&tokStr, 'i');
+        lexer->cursor++;
+        while (!kLexerIsAtEnd(lexer) && isdigit(lexer->source[lexer->cursor])) {
+            kStrAppendC(&tokStr, lexer->source[lexer->cursor]);
+            lexer->cursor++;
+        }
+        kTokenType outputType = TOKEN_I8;
+
+        if (isTypeUnsigned) {
+            const kString errorMessage = kStrMakeFromC("Character types cannot be unsigned");
+            kAddErrorT(&errorMessage, startOffset, tokStr.length+1, true, ERR_LEX_INVALID);
+        }
+
+        if (!strcmp(tokStr.buffer, "c8")) outputType = TOKEN_I8;
+        if (!strcmp(tokStr.buffer, "c16")) outputType = TOKEN_I16;
+        if (!strcmp(tokStr.buffer, "c32")) outputType = TOKEN_I32;
+        if (!strcmp(tokStr.buffer, "c64")) outputType = TOKEN_I64;
+    }
+
+    // resets the cursor to the position before
+    if (isTypeUnsigned) lexer->cursor--;
 
     if (isalpha(c) || c == '_') {
         while (!kLexerIsAtEnd(lexer)) {
