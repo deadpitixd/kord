@@ -8,12 +8,14 @@
 #include <kstring.h>
 
 #include <stdlib.h>
+#include <stdint.h>
 
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <limits.h>
 #endif
+
 
 static kString kGetAbsolutePath(const char *path) {
     char resolved[
@@ -26,7 +28,7 @@ static kString kGetAbsolutePath(const char *path) {
     kString kResolved;
     kStrMake(&kResolved);
 #ifdef _WIN32
-    if (_fullpath(resolved, path, _WIN32_MAX_PATH) != NULL) {
+    if (_fullpath(resolved, path, MAX_PATH) != NULL) {
         kStrSet(&kResolved, resolved);
         return kResolved;
     }
@@ -41,7 +43,7 @@ static kString kGetAbsolutePath(const char *path) {
     return kResolved;
 }
 
-typedef enum kErrorType_e : __uint8_t {
+typedef enum kErrorType_e : uint8_t {
     ERR_OK,
 
     ERR_WARNING,
