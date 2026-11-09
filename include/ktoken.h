@@ -245,7 +245,7 @@ static kToken kLexerGetNextToken(kLexer *lexer) {
             kStrAppendC(&tokStr, lexer->source[lexer->cursor]);
             lexer->cursor++;
         }
-        kTokenType outputType = TOKEN_I8;
+        kTokenType outputType = TOKEN_EOF;
         if (!isTypeUnsigned) {
             if (!strcmp(tokStr.buffer, "i8")) outputType = TOKEN_I8;
             if (!strcmp(tokStr.buffer, "i16")) outputType = TOKEN_I16;
@@ -258,6 +258,14 @@ static kToken kLexerGetNextToken(kLexer *lexer) {
             if (!strcmp(tokStr.buffer, "ui64")) outputType = TOKEN_UI64;
         }
         isTypeUnsigned = false;
+
+        if (outputType == TOKEN_EOF) {
+            kString error;
+            kStrMake(&error);
+            kStrSet(&error, "Invalid size of int given");
+            kAddErrorT(&error, startOffset, tokStr.length, true, ERR_LEX_INVALID_NUM);
+        }
+
         return (kToken){.type = outputType, .length = lexer->length - startOffset, .lexeme = tokStr, .offset = startOffset };
     }
 
@@ -270,17 +278,26 @@ static kToken kLexerGetNextToken(kLexer *lexer) {
             kStrAppendC(&tokStr, lexer->source[lexer->cursor]);
             lexer->cursor++;
         }
-        kTokenType outputType = TOKEN_I8;
+        kTokenType outputType = TOKEN_EOF;
 
         if (isTypeUnsigned) {
             const kString errorMessage = kStrMakeFromC("Character types cannot be unsigned");
             kAddErrorT(&errorMessage, startOffset, tokStr.length+1, true, ERR_LEX_INVALID);
         }
 
-        if (!strcmp(tokStr.buffer, "c8")) outputType = TOKEN_I8;
-        if (!strcmp(tokStr.buffer, "c16")) outputType = TOKEN_I16;
-        if (!strcmp(tokStr.buffer, "c32")) outputType = TOKEN_I32;
-        if (!strcmp(tokStr.buffer, "c64")) outputType = TOKEN_I64;
+        if (!strcmp(tokStr.buffer, "i8")) outputType = TOKEN_I8;
+        if (!strcmp(tokStr.buffer, "i16")) outputType = TOKEN_I16;
+        if (!strcmp(tokStr.buffer, "i32")) outputType = TOKEN_I32;
+        if (!strcmp(tokStr.buffer, "i64")) outputType = TOKEN_I64;
+
+        if (outputType == TOKEN_EOF) {
+            kString error;
+            kStrMake(&error);
+            kStrSet(&error, "Invalid size of char given");
+            kAddErrorT(&error, startOffset, tokStr.length, true, ERR_LEX_INVALID_NUM);
+        }
+
+        return (kToken){.type = outputType, .length = lexer->length - startOffset, .lexeme = tokStr, .offset = startOffset };
     }
 
     // resets the cursor to the position before

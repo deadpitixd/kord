@@ -1,7 +1,7 @@
 fn main() -> i32 {
-    uc16 y;
-    uc8 y;
+    c8 y;
     i16 x = 123;
+    ui16 b = 164;
     print("Hello World!");
     ulong;
 }
