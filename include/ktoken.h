@@ -61,6 +61,9 @@ typedef enum : uint8_t {
 
     TOKEN_IDENTIFIER,
 
+    TOKEN_IMPORT, // import
+    TOKEN_PRINT, // print
+
     TOKEN_EOF
 } kTokenType;
 
@@ -112,6 +115,8 @@ static kTokenType kLexerGetTokenTypeFromStr(const kString *string) {
     if (!strcmp(string->buffer, "true")) return TOKEN_TRUE;
     if (!strcmp(string->buffer, "false")) return TOKEN_FALSE;
     if (!strcmp(string->buffer, "fn")) return TOKEN_FUNC_DEF;
+    if (!strcmp(string->buffer, "print")) return TOKEN_PRINT;
+    if (!strcmp(string->buffer, "import")) return TOKEN_IMPORT;
     if (!strcmp(string->buffer, "+")) return TOKEN_ADD;
     if (!strcmp(string->buffer, "-")) return TOKEN_SUB;
     if (!strcmp(string->buffer, "*")) return TOKEN_MULT;
@@ -237,8 +242,9 @@ static kToken kLexerGetNextToken(kLexer *lexer) {
     }
 
     // types
-    if (kLexerPeek(lexer) == 'i') {
+    if (kLexerPeek(lexer) == 'i' && isdigit(lexer->source[lexer->cursor+1]) ) {
         kLexerAdvance(lexer);
+
         if (isTypeUnsigned) kStrAppendC(&tokStr, 'u');
         kStrAppendC(&tokStr, 'i');
         while (!kLexerIsAtEnd(lexer) && isdigit(lexer->source[lexer->cursor])) {
@@ -271,7 +277,7 @@ static kToken kLexerGetNextToken(kLexer *lexer) {
 
     // char
     // piti - chars are macros for ints
-    if (kLexerPeek(lexer) == 'c') {
+    if (kLexerPeek(lexer) == 'c' && isdigit(lexer->source[lexer->cursor+1])) {
         kStrAppendC(&tokStr, 'i');
         lexer->cursor++;
         while (!kLexerIsAtEnd(lexer) && isdigit(lexer->source[lexer->cursor])) {

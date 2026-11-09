@@ -1,7 +1,8 @@
+include "io";
+
 fn main() -> i32 {
-    c8 y;
     i16 x = 123;
+    i32 &z = x;
     ui16 b = 164;
     print("Hello World!");
-    ulong;
 }
