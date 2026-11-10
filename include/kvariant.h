@@ -12,37 +12,37 @@ typedef enum {
     TYPE_INT,
     TYPE_DOUBLE,
     TYPE_STRING
-} ValueType;
+} kValueType;
 
 typedef struct {
-    ValueType type;
+    kValueType type;
     union {
         int i;
         double d;
-        kString str;
         bool b;
+        kString str;
     } value;
 } kVariant;
 
-static inline int kValGetInt(const kVariant *variant){
+static int kValGetInt(const kVariant *variant){
     return variant->type == TYPE_INT ? variant->value.i : 0;
 }
-static inline double kValGetDouble(const kVariant *variant){
+static double kValGetDouble(const kVariant *variant){
     return variant->type == TYPE_DOUBLE ? variant->value.d : 0.0f;
 }
 static kString* kValGetString(const kVariant *variant){
     return variant->type == TYPE_STRING ? (kString*) &variant->value.str : (kString*) nullptr;
 }
 
-static inline void kValSetInt(kVariant *variant, const int value){
+static void kValSetInt(kVariant *variant, const int value){
     variant->type = TYPE_INT;
     variant->value.i = value;
 }
-static inline void kValSetFloat(kVariant *variant, const double value){
+static void kValSetFloat(kVariant *variant, const double value){
     variant->type = TYPE_DOUBLE;
     variant->value.d = value;
 }
-static inline void kValSetString(kVariant *val, const char *str) {
+static void kValSetString(kVariant *val, const char *str) {
     if (val->type == TYPE_STRING) {
         kStrSet(&val->value.str, str);
     } else {
@@ -52,7 +52,7 @@ static inline void kValSetString(kVariant *val, const char *str) {
     }
 }
 
-static inline void kValAsString(const kVariant *variant, char *buffer, const size_t size){
+static void kValAsString(const kVariant *variant, char *buffer, const size_t size){
     switch (variant->type) {
         case TYPE_INT:
             snprintf(buffer, size, "%d", variant->value.i);
@@ -69,7 +69,7 @@ static inline void kValAsString(const kVariant *variant, char *buffer, const siz
     }
 }
 
-static inline const char *kTypeToString(const ValueType type){
+static const char *kTypeToString(const kValueType type){
     switch (type)
     {
     case TYPE_INT:
@@ -83,7 +83,7 @@ static inline const char *kTypeToString(const ValueType type){
     }
 }
 
-static inline ValueType kTypeofVariant(const kVariant *variant){
+static kValueType kTypeofVariant(const kVariant *variant){
     return variant->type;
 }
 

@@ -5,6 +5,7 @@
 #include <kfile.h>
 #include <ktoken.h>
 #include <kerror.h>
+#include <kast.h>
 
 int main(const int argc, char** argv) {
     if (argc == 1) {
@@ -28,6 +29,23 @@ int main(const int argc, char** argv) {
     else {
         printf("Failed to load %s\n", argv[1]);
     }
+
+    kASTNode varDecl;
+    varDecl.nodeType = AST_NODE_VAR_DECL;
+    varDecl.kAST_VarDeclStmt.varName = kStrMakeFromC("x");
+
+    kASTNode varName;
+    varName.nodeType = AST_NODE_LITERAL;
+    kVariant variableNameStr;
+    kValSetString(&variableNameStr, "x");
+    varName.kAST_LiteralExpr.value = variableNameStr;
+
+    kASTNode numberNode;
+    numberNode.nodeType = AST_NODE_LITERAL;
+    kVariant numberInt;
+    kValSetInt(&numberInt, 4);
+    numberNode.kAST_LiteralExpr.value = variableNameStr;
+
 
     printf("File:\n%s\nOf size: %ld\n",sourceFile, fileSize);
 

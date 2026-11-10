@@ -6,3 +6,8 @@ fn main() -> i32 {
     ui16 b = 164;
     print("Hello World!");
 }
+
+--
+i32 x;
+x = 4 + 4;
+--
