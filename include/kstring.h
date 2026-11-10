@@ -85,7 +85,7 @@ static inline bool kStrEqualsC(kString* str, const char* other) {
 
 // piti - compares kstr and kstr
 [[nodiscard]]
-static inline bool kStrEquals(kString* str, kString* other) {
+static bool kStrEquals(kString* str, kString* other) {
     if (!other || !str) return false;
     return strcmp(str->buffer, other->buffer) == 0;
 }
