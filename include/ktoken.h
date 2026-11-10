@@ -61,6 +61,8 @@ typedef enum : uint8_t {
 
     TOKEN_IDENTIFIER,
 
+    TOKEN_REFERENCE, // &
+
     TOKEN_IMPORT, // import
     TOKEN_PRINT, // print
 
@@ -132,6 +134,7 @@ static kTokenType kLexerGetTokenTypeFromStr(const kString *string) {
     if (!strcmp(string->buffer, ")")) return TOKEN_RPAREN;
     if (!strcmp(string->buffer, ">")) return TOKEN_GREATER;
     if (!strcmp(string->buffer, "<")) return TOKEN_LESS;
+    if (!strcmp(string->buffer, "&")) return TOKEN_REFERENCE;
 
     const kIsStrNumericOutput temp = kIsStringNumeric(string);
     if (temp.isNumeric) return temp.isFloatingPoint ? TOKEN_DOUBLE : TOKEN_INT;
