@@ -30,22 +30,35 @@ int main(const int argc, char** argv) {
         printf("Failed to load %s\n", argv[1]);
     }
 
+    // root / variable declaration
     kASTNode varDecl;
     varDecl.nodeType = AST_NODE_VAR_DECL;
     varDecl.kAST_VarDeclStmt.varName = kStrMakeFromC("x");
 
-    kASTNode varName;
-    varName.nodeType = AST_NODE_LITERAL;
-    kVariant variableNameStr;
-    kValSetString(&variableNameStr, "x");
-    varName.kAST_LiteralExpr.value = variableNameStr;
+    kString str;
+    kStrSet(&str, "x");
 
+    // number node
     kASTNode numberNode;
     numberNode.nodeType = AST_NODE_LITERAL;
     kVariant numberInt;
     kValSetInt(&numberInt, 4);
-    numberNode.kAST_LiteralExpr.value = variableNameStr;
+    numberNode.kAST_LiteralExpr.value = numberInt;
 
+    // binary operation
+    kASTNode binaryOp;
+    binaryOp.nodeType = AST_NODE_BINOP;
+    binaryOp.kAST_BinaryExpr.left = &numberNode;
+    binaryOp.kAST_BinaryExpr.right = &numberNode;
+    binaryOp.kAST_BinaryExpr.op = BINOP_ADD;
+
+    // assign stmt
+    kASTNode assignNode;
+    assignNode.nodeType = AST_NODE_ASSIGN_STMT;
+    assignNode.kAST_AssignStmt.assignValue = &binaryOp;
+    assignNode.kAST_AssignStmt.varName = str;
+
+    varDecl.next = &assignNode;
 
     printf("File:\n%s\nOf size: %ld\n",sourceFile, fileSize);
 

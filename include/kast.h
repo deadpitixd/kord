@@ -47,7 +47,7 @@ typedef struct kASTNode_s {
             kVariant defaultValue;
         } kAST_VarDeclStmt;
         struct {
-            kVariant assignValue;
+            struct kASTNode_s *assignValue;
             kString varName;
         } kAST_AssignStmt;
     };
