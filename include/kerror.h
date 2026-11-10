@@ -133,21 +133,22 @@ static void kErrorInit() {
     errorListLength = 0;
 }
 
-static void kAddErrorT(const kString *msg, const size_t offset, const size_t length, const bool forceExit, const kErrorType error) {
+static kError *kAddErrorT(const kString *msg, const size_t offset, const size_t length, const bool forceExit, const kErrorType error) {
     if (errorListSize <= errorListLength + 1) {
         errorListSize = (size_t)((float)errorListSize * 1.5);
         kError *temp = (kError*)realloc(errorList, errorListSize * sizeof(kError));
         if (!temp) {
             printf("Failed to add element of error %d with message %s, couldn't resize error list", error, msg->buffer);
-            return;
+            return nullptr;
         }
         errorList = temp;
     }
     errorList[errorListLength++] = (kError){.length = length, .offset = offset, .forceExit = forceExit, .errType = error, .msg = kStrDup(msg) };
+    return &errorList[errorListLength];
 }
 
-static void kAddError(const kString *msg, const size_t offset, const size_t length, const bool forceExit) {
-    kAddErrorT(msg, offset, length, forceExit, ERR_UNKNOWN);
+static kError *kAddError(const kString *msg, const size_t offset, const size_t length, const bool forceExit) {
+    return kAddErrorT(msg, offset, length, forceExit, ERR_UNKNOWN);
 }
 
 static void kPrintError(const kError *err, const kSourceFile *file, const char *bgcolor);
