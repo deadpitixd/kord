@@ -38,7 +38,7 @@ static void kValSetInt(kVariant *variant, const int value){
     variant->type = TYPE_INT;
     variant->value.i = value;
 }
-static void kValSetFloat(kVariant *variant, const double value){
+static void kValSetDouble(kVariant *variant, const double value){
     variant->type = TYPE_DOUBLE;
     variant->value.d = value;
 }
@@ -85,6 +85,22 @@ static const char *kTypeToString(const kValueType type){
 
 static kValueType kTypeofVariant(const kVariant *variant){
     return variant->type;
+}
+
+static kVariant kDefaultValueOfType(const kValueType type) {
+    kVariant var;
+    switch (type) {
+        case TYPE_INT:
+            kValSetInt(&var, 0);
+            break;
+        case TYPE_DOUBLE:
+            kValSetDouble(&var, 0);
+            break;
+        case TYPE_STRING:
+            kValSetString(&var, "");
+            break;
+    }
+    return var;
 }
 
 #endif //KORD_KVARIANT_H

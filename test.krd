@@ -1,13 +1,2 @@
-include "io";
-
-fn main() -> i32 {
-    i16 x = 123;
-    i32 &z = x;
-    ui16 b = 164;
-    print("Hello World!");
-}
-
---
 i32 x;
 x = 4 + 4;
---
