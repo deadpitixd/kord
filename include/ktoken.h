@@ -61,6 +61,8 @@ typedef enum : uint8_t {
 
     TOKEN_IDENTIFIER,
 
+    TOKEN_CONST,
+
     TOKEN_REFERENCE, // &
 
     TOKEN_IMPORT, // import
@@ -119,6 +121,7 @@ static kTokenType kLexerGetTokenTypeFromStr(const kString *string) {
     if (!strcmp(string->buffer, "fn")) return TOKEN_FUNC_DEF;
     if (!strcmp(string->buffer, "print")) return TOKEN_PRINT;
     if (!strcmp(string->buffer, "import")) return TOKEN_IMPORT;
+    if (!strcmp(string->buffer, "const")) return TOKEN_CONST;
     if (!strcmp(string->buffer, "+")) return TOKEN_ADD;
     if (!strcmp(string->buffer, "-")) return TOKEN_SUB;
     if (!strcmp(string->buffer, "*")) return TOKEN_MULT;
@@ -330,6 +333,19 @@ static kToken kLexerGetNextToken(kLexer *lexer) {
             .length = lexer->cursor - startOffset,
             .offset = startOffset
         };
+    }
+
+    if (isdigit(c)) {
+        while (!kLexerIsAtEnd(lexer)) {
+            const char cur = lexer->source[lexer->cursor];
+            if (isdigit(cur) || cur == '.') {
+                kStrAppendC(&tokStr, cur);
+                lexer->cursor++;
+            }
+            else {
+                break;
+            }
+        }
     }
 
     while (!kLexerIsAtEnd(lexer)) {
