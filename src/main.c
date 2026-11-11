@@ -6,6 +6,7 @@
 #include <ktoken.h>
 #include <kerror.h>
 #include <kast.h>
+#include <kmemory.h>
 
 int main(const int argc, char** argv) {
     if (argc == 1) {
@@ -30,35 +31,52 @@ int main(const int argc, char** argv) {
         printf("Failed to load %s\n", argv[1]);
     }
 
-    // root / variable declaration
-    kASTNode varDecl;
-    varDecl.nodeType = AST_NODE_VAR_DECL;
-    varDecl.kAST_VarDeclStmt.varName = kStrMakeFromC("x");
-
     kString str;
+    kStrMake(&str);
     kStrSet(&str, "x");
 
+
+    // root / variable declaration
+    kASTNode varDecl = {0};
+    varDecl.nodeType = AST_NODE_VAR_DECL;
+    varDecl.kAST_VarDeclStmt.varName = str;
+
+
     // number node
-    kASTNode numberNode;
+    kASTNode numberNode = {0};
     numberNode.nodeType = AST_NODE_LITERAL;
     kVariant numberInt;
     kValSetInt(&numberInt, 4);
     numberNode.kAST_LiteralExpr.value = numberInt;
 
     // binary operation
-    kASTNode binaryOp;
+    kASTNode binaryOp = {0};
     binaryOp.nodeType = AST_NODE_BINOP;
     binaryOp.kAST_BinaryExpr.left = &numberNode;
     binaryOp.kAST_BinaryExpr.right = &numberNode;
     binaryOp.kAST_BinaryExpr.op = BINOP_ADD;
 
+    varDecl.kAST_VarDeclStmt.defaultValue = &numberNode;
+
+
     // assign stmt
-    kASTNode assignNode;
+    kASTNode assignNode = {0};
     assignNode.nodeType = AST_NODE_ASSIGN_STMT;
     assignNode.kAST_AssignStmt.assignValue = &binaryOp;
     assignNode.kAST_AssignStmt.varName = str;
 
     varDecl.next = &assignNode;
+
+    kRuntimeMemory mem;
+    kInitRuntimeMemory(&mem);
+
+    evaluationMemory = &mem;
+    kEvaluateNode(&varDecl);
+
+
+    printf("Got number %d at field 'x' in memory\n", kValGetInt(kGetMemoryValue(&mem, &str)));
+
+    return 0;
 
     printf("File:\n%s\nOf size: %ld\n",sourceFile, fileSize);
 
@@ -75,6 +93,5 @@ int main(const int argc, char** argv) {
     }
 
     kCheckErrors();
-
     return 0;
 }
