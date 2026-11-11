@@ -46,6 +46,7 @@ typedef struct kASTNode_s {
         struct {
             bool isConst;
             kString varName;
+            kValueType valueType;
             struct kASTNode_s *defaultValue;
         } kAST_VarDeclStmt;
         struct {
@@ -54,12 +55,6 @@ typedef struct kASTNode_s {
         } kAST_AssignStmt;
     };
 } kASTNode;
-
-// these are given by the user
-static kASTNode *outputNodes;
-static void kCompileToAST(kToken *token, const size_t length) {
-
-}
 
 static kRuntimeMemory *evaluationMemory;
 static kVariant kEvaluateNode(kASTNode *node) {
@@ -70,28 +65,45 @@ static kVariant kEvaluateNode(kASTNode *node) {
             break;
         case AST_NODE_LITERAL:
             return node->kAST_LiteralExpr.value;
-        case AST_NODE_BINOP:
-            const kBinaryOperator *op = &node->kAST_BinaryExpr.op;
+        case AST_NODE_BINOP: {
+            kBinaryOperator op = node->kAST_BinaryExpr.op;
             kVariant a = kEvaluateNode(node->kAST_BinaryExpr.left);
             kVariant b = kEvaluateNode(node->kAST_BinaryExpr.right);
+
             if (a.type != b.type) {
                 return kDefaultValueOfType(a.type);
             }
-            kVariant outputValue;
-            switch (a.type) {
-                case TYPE_INT:
-                    kValSetInt(&outputValue, kValGetInt(&a) + kValGetInt(&b));
+
+            kVariant outputValue = {0};
+            outputValue.type = a.type;
+
+#define APPLY_BINOP(int_op, double_op) \
+        if (a.type == TYPE_INT) { \
+            kValSetInt(&outputValue, kValGetInt(&a) int_op kValGetInt(&b)); \
+        } else if (a.type == TYPE_DOUBLE) { \
+            kValSetDouble(&outputValue, kValGetDouble(&a) double_op kValGetDouble(&b)); \
+        }
+
+            switch (op) {
+                case BINOP_ADD:
+                    APPLY_BINOP(+, +);
                     break;
-                case TYPE_DOUBLE:
-                    kValSetDouble(&outputValue, kValGetDouble(&a) + kValGetDouble(&b));
+                case BINOP_SUB:
+                    APPLY_BINOP(-, -);
                     break;
-                case TYPE_STRING:
-                    kValSetString(&outputValue, "");
+                case BINOP_MULT:
+                    APPLY_BINOP(*, *);
+                    break;
+                case BINOP_DIV:
+                    APPLY_BINOP(/, /);
+                    break;
+                default:
                     break;
             }
 
-
+#undef APPLY_BINOP
             return outputValue;
+        }
 
         case AST_NODE_ASSIGN_STMT:
             const size_t idx = kFindMemoryField(evaluationMemory, &node->kAST_AssignStmt.varName);
