@@ -7,6 +7,7 @@
 #include <kerror.h>
 #include <kast.h>
 #include <kmemory.h>
+#include <kparse.h>
 
 int main(const int argc, char** argv) {
     if (argc == 1) {
@@ -31,10 +32,6 @@ int main(const int argc, char** argv) {
         printf("Failed to load %s\n", argv[1]);
     }
 
-    kString str;
-    kStrMake(&str);
-    kStrSet(&str, "x");
-
     printf("File:\n%s\nOf size: %ld\n",sourceFile, fileSize);
 
     kLexer lexer = {
@@ -42,14 +39,32 @@ int main(const int argc, char** argv) {
         .length = 0, .offset = 0
     };
 
+    kParser parser;
+    kInitParser(&parser);
+
     kErrorInit();
     curFileIdx = kErrorRegisterFile(kGetAbsolutePath(argv[1]).buffer, sourceFile);
     while (!kLexerIsAtEnd(&lexer)) {
         const kToken token = kLexerGetNextToken(&lexer);
+        kAddToken(&parser, &token);
+
         printf("TOKEN %d | %s\n", token.type, token.lexeme.buffer);
     }
 
     kCheckErrors();
+    printf("Parser got %ld tokens\n", parser.tokenCount);
+
+    kRuntimeMemory mem;
+    kInitRuntimeMemory(&mem);
+
+    evaluationMemory = &mem;
+
+    kEvaluateNode(kParseTokens(&parser));
+
+    kString varNameStr = kStrMakeFromC("x");
+
+    printf("Got number %f at field 'x' in memory\n", kValGetDouble(kGetMemoryValue(&mem, &varNameStr)));
+
     return 0;
 }
 
