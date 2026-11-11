@@ -14,6 +14,7 @@ add_executable(kord
         include/kerror.h
         include/kast.h
         include/kmemory.h
+        include/kparse.h
 )
 
 target_include_directories(kord PRIVATE include)

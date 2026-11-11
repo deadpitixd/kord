@@ -35,8 +35,26 @@ int main(const int argc, char** argv) {
     kStrMake(&str);
     kStrSet(&str, "x");
 
+    printf("File:\n%s\nOf size: %ld\n",sourceFile, fileSize);
 
-    // root / variable declaration
+    kLexer lexer = {
+        .source = sourceFile, .cursor = 0, .sourceLength = fileSize,
+        .length = 0, .offset = 0
+    };
+
+    kErrorInit();
+    curFileIdx = kErrorRegisterFile(kGetAbsolutePath(argv[1]).buffer, sourceFile);
+    while (!kLexerIsAtEnd(&lexer)) {
+        const kToken token = kLexerGetNextToken(&lexer);
+        printf("TOKEN %d | %s\n", token.type, token.lexeme.buffer);
+    }
+
+    kCheckErrors();
+    return 0;
+}
+
+/*
+   // root / variable declaration
     kASTNode varDecl = {0};
     varDecl.nodeType = AST_NODE_VAR_DECL;
     varDecl.kAST_VarDeclStmt.varName = str;
@@ -46,7 +64,7 @@ int main(const int argc, char** argv) {
     kASTNode numberNode = {0};
     numberNode.nodeType = AST_NODE_LITERAL;
     kVariant numberInt;
-    kValSetInt(&numberInt, 4);
+    kValSetInt(&numberInt, 5);
     numberNode.kAST_LiteralExpr.value = numberInt;
 
     // binary operation
@@ -76,22 +94,4 @@ int main(const int argc, char** argv) {
 
     printf("Got number %d at field 'x' in memory\n", kValGetInt(kGetMemoryValue(&mem, &str)));
 
-    return 0;
-
-    printf("File:\n%s\nOf size: %ld\n",sourceFile, fileSize);
-
-    kLexer lexer = {
-        .source = sourceFile, .cursor = 0, .sourceLength = fileSize,
-        .length = 0, .offset = 0
-    };
-
-    kErrorInit();
-    curFileIdx = kErrorRegisterFile(kGetAbsolutePath(argv[1]).buffer, sourceFile);
-    while (!kLexerIsAtEnd(&lexer)) {
-        const kToken token = kLexerGetNextToken(&lexer);
-        printf("TOKEN %d | %s\n", token.type, token.lexeme.buffer);
-    }
-
-    kCheckErrors();
-    return 0;
-}
+ */
