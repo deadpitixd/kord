@@ -11,6 +11,12 @@
 #include <stdint.h>
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#define NOSERVICE
+#define NOMCX
+#define NOIME
+#define NOHELP
 #include <windows.h>
 #else
 #include <limits.h>
