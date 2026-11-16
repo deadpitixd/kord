@@ -58,10 +58,19 @@ typedef struct kASTNode_s {
 
 static kRuntimeMemory *evaluationMemory;
 static kVariant kEvaluateNode(kASTNode *node) {
+#if KORD_ERROR
+    printf("Evaluated node of type %d\n", node->nodeType);
+#endif
     switch (node->nodeType) {
         case AST_NODE_VAR_DECL:
             kASTNode *valueNode = node->kAST_VarDeclStmt.defaultValue;
-            kAddMemoryField(evaluationMemory, &node->kAST_VarDeclStmt.varName, kEvaluateNode(valueNode));
+            const kVariant varDeclValue = kEvaluateNode(valueNode);
+#if KORD_ERROR == 1
+            char printBuf[1024];
+            kValAsString(&varDeclValue, printBuf, 1023);
+            printf("Adding memory field of variable %s of value %s\n", node->kAST_VarDeclStmt.varName.buffer, printBuf);
+#endif
+            kAddMemoryField(evaluationMemory, &node->kAST_VarDeclStmt.varName, varDeclValue);
             break;
         case AST_NODE_LITERAL:
             return node->kAST_LiteralExpr.value;
