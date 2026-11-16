@@ -1,0 +1,67 @@
+name: Kord Extension Proposal - [KEP]
+about: Propose a new language feature, syntax change, or architectural addition to Kord.
+title: "[KEP]: "
+labels: ["kep", "needs-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Kord Extension Proposal (KEP)
+        Thank you for contributing to the architecture of Kord. Use this form to propose new syntax, types, or compiler capabilities.
+
+  - type: input
+    id: kep_title
+    attributes:
+      label: Proposal Title
+      description: A concise, descriptive name for your proposal.
+      placeholder: "e.g. Struct Methods and Pointer Receiver Syntax"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 1. Summary
+      description: Give a brief, 2-3 sentence overview of what this feature is and how it looks in code.
+      placeholder: "This proposal introduces..."
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: 2. Motivation and Problem Statement
+      description: Why is this needed? What current limitation in Kord does this solve? Provide concrete code examples.
+      placeholder: "Currently, doing X requires..."
+      render: c
+    validations:
+      required: true
+
+  - type: textarea
+    id: design
+    attributes:
+      label: 3. Detailed Design & Syntax
+      description: Show exact code snippets demonstrating the syntax, scoping rules, and edge cases.
+      placeholder: "struct Example { ... }"
+      render: c
+    validations:
+      required: true
+
+  - type: textarea
+    id: tradeoffs
+    attributes:
+      label: 5. Drawbacks & Alternatives
+      description: Why might we *not* want this? What alternative designs were considered?
+      placeholder: "Alternative approach considered was..."
+      render: markdown
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Proposal Guidelines Checklist
+      options:
+        - label: This proposal respects Kord's explicit typing and manual memory management model.
+          required: true
