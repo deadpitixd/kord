@@ -51,7 +51,7 @@ body:
   - type: textarea
     id: tradeoffs
     attributes:
-      label: 5. Drawbacks & Alternatives
+      label: 4. Drawbacks & Alternatives
       description: Why might we *not* want this? What alternative designs were considered?
       placeholder: "Alternative approach considered was..."
       render: markdown
