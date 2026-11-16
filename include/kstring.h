@@ -49,7 +49,7 @@ static inline void kStrAppend(kString* str, const char* other) {
     if (str == nullptr) return;
     const size_t otherSize = strlen(other);
     if (otherSize + str->length >= str->size) {
-        kStrResize(str, (size_t)((float)str->size * 1.5f) + otherSize);
+        kStrResize(str, (size_t)((float)str->size * 1.5f) + otherSize + 1);
     }
 
     memcpy(str->buffer + str->length, other, otherSize);

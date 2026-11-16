@@ -30,8 +30,8 @@ static void kInitParser(kParser *parser) {
 
 static void kAddToken(kParser *parser, const kToken *token) {
     if (parser->tokenSize <= parser->tokenCount+1) {
-        parser->tokenSize = (size_t)(parser->tokenSize * 1.5);
-        kToken *temp = realloc(parser->tokens, sizeof(kToken) * parser->tokenSize);
+        parser->tokenSize = (size_t)((double)parser->tokenSize + 1 * 2);
+        kToken *temp = (kToken*)realloc(parser->tokens, sizeof(kToken) * parser->tokenSize);
         if (!temp) {
             const kString msg = kStrMakeFromC("Failed to reallocate and add an element to the parser");
             kHandleError(kAddError(&msg, 0, 0, true));
@@ -186,7 +186,7 @@ static kASTNode *kParseTokens(kParser *parser) {
     while (!kParserIsAtEnd(parser)) {
         if (kParserCheck(parser, TOKEN_CONST)) {
             if (isConst) {
-                kString errStr = kStrMakeFromC("Cannot use two const definitions");
+                kString errStr = kStrMakeFromC("Cannot use more than one const definition at once");
                 kAddErrorT(&errStr, kParserPeek(parser)->offset, kParserPeek(parser)->length, true, ERR_FAIL);
             }
             if (parser->cursor + 1 >= parser->tokenCount || parser->tokens[parser->cursor + 1].type != TOKEN_I32) {
