@@ -9,6 +9,8 @@
 #include <kmemory.h>
 #include <kparse.h>
 
+kRuntimeMemory mem;
+
 int main(const int argc, char** argv) {
     if (argc == 1) {
         printf(
@@ -51,19 +53,28 @@ int main(const int argc, char** argv) {
         printf("TOKEN %d | %s\n", token.type, token.lexeme.buffer);
     }
 
+    printf("Program got %zu errors\n", errorListLength);
     kCheckErrors();
     printf("Parser got %ld tokens\n", parser.tokenCount);
 
-    kRuntimeMemory mem;
+
     kInitRuntimeMemory(&mem);
 
     evaluationMemory = &mem;
 
-    kEvaluateNode(kParseTokens(&parser));
+    kASTNode *rootNode = kParseTokens(&parser);
+    kEvaluateNode(rootNode);
+
+    printf("Is there a next node to the root? %d\n", rootNode->next != nullptr);
 
     kString varNameStr = kStrMakeFromC("x");
 
-    printf("Got number %f at field 'x' in memory\n", kValGetDouble(kGetMemoryValue(&mem, &varNameStr)));
+    printf("Got %zu fields in memory\n", evaluationMemory->length);
+
+    char xVariableBuffer[1024];
+    kValAsString(kGetMemoryValue(&mem, &varNameStr), xVariableBuffer, 1023);
+
+    printf("Got value %s at field 'x' in memory\n", xVariableBuffer);
 
     return 0;
 }
