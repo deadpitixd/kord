@@ -1,5 +1,5 @@
 name: Kord Extension Proposal - [KEP]
-about: Propose a new language feature, syntax change, or architectural addition to Kord.
+description: Propose a new language feature, syntax change, or architectural addition to Kord.
 title: "[KEP]: "
 labels: ["kep", "needs-review"]
 body:
