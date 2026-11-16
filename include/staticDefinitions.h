@@ -9,6 +9,8 @@
 #define KORD_VERSION_PATCH 0
 #define KORD_VERSION_MINOR 0
 
+#define KORD_ERROR 1
+
 // num to str
 #define KORD_STR2(x) #x
 #define KORD_STR(x) KORD_STR2(x)
