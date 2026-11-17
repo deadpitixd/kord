@@ -110,6 +110,8 @@ static kASTNode *kParsePrimary(kParser *parser) {
         memset(node, 0, sizeof(kASTNode));
 
         node->nodeType = AST_NODE_LITERAL;
+        node->offset = tok->offset;
+        node->length = tok->length;
         kVariant value;
 
         if (tok->type == TOKEN_STRING) {
@@ -177,6 +179,15 @@ static kASTNode *kParseExpression(kParser *parser) {
     return left;
 }
 
+#define kAttachTailHead(node)       \
+    if (head == nullptr) {          \
+        head = node;                \
+        tail = head;                \
+    } else {                        \
+        tail->next = node;          \
+        tail = node;                \
+    }                               \
+
 [[nodiscard]]
 static kASTNode *kParseTokens(kParser *parser) {
     kASTNode *head = nullptr;
@@ -197,7 +208,27 @@ static kASTNode *kParseTokens(kParser *parser) {
             kParserAdvance(parser);
             continue;
         }
+        if (kParserCheck(parser, TOKEN_IDENTIFIER) && parser->tokens[parser->cursor+1].type == TOKEN_ASSIGN) {
+            kASTNode *assignNode = (kASTNode*)malloc(sizeof(kASTNode));
+            if (assignNode == nullptr) return nullptr;
+            memset(assignNode, 0, sizeof(kASTNode));
 
+            assignNode->nodeType = AST_NODE_ASSIGN_STMT;
+            assignNode->offset = kParserPeek(parser)->offset;
+            assignNode->length = kParserPeek(parser)->length;
+
+            kString variableName = kParserPeek(parser)->lexeme;
+
+            kParserAdvance(parser);
+            kParserAdvance(parser);
+
+            kASTNode *value = kParseExpression(parser);
+
+            assignNode->kAST_AssignStmt.varName = variableName;
+            assignNode->kAST_AssignStmt.assignValue = value;
+
+            kAttachTailHead(assignNode);
+        }
         if (kParserCheck(parser, TOKEN_I32) && (parser->cursor + 1 < parser->tokenCount) && parser->tokens[parser->cursor + 1].type == TOKEN_IDENTIFIER) {
             kASTNode *varDeclNode = (kASTNode*)malloc(sizeof(kASTNode));
 
@@ -205,6 +236,10 @@ static kASTNode *kParseTokens(kParser *parser) {
             memset(varDeclNode, 0, sizeof(kASTNode));
             varDeclNode->nodeType = AST_NODE_VAR_DECL;
             varDeclNode->kAST_VarDeclStmt.isConst = isConst;
+
+            varDeclNode->offset = kParserPeek(parser)->offset;
+            varDeclNode->length = kParserPeek(parser)->length;
+
             isConst = false;
 
             switch (kParserAdvance(parser)->type) {
@@ -232,13 +267,8 @@ static kASTNode *kParseTokens(kParser *parser) {
 
             kParserExpect(parser, TOKEN_SEMICOLON);
 
-            if (head == nullptr) {
-                head = varDeclNode;
-                tail = head;
-            } else {
-                tail->next = varDeclNode;
-                tail = varDeclNode;
-            }
+            kAttachTailHead(varDeclNode);
+
         } else {
             kParserAdvance(parser);
         }

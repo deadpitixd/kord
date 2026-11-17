@@ -80,6 +80,19 @@ static kVariant kEvaluateNode(kASTNode *node) {
             kVariant b = kEvaluateNode(node->kAST_BinaryExpr.right);
 
             if (a.type != b.type) {
+                kString errStr;
+                kStrMake(&errStr);
+                kStrSet(&errStr, "Cannot operate on mismatched types.");
+
+                kAddErrorT(
+                    &errStr,
+                    0,
+                    0,
+                    true,
+                    ERR_SEMANTIC_TYPE_MISMATCH
+                );
+
+                printf("a\n");
                 return kDefaultValueOfType(a.type);
             }
 
@@ -119,6 +132,11 @@ static kVariant kEvaluateNode(kASTNode *node) {
             kVariant value = kEvaluateNode(node->kAST_AssignStmt.assignValue);
             if (value.type == evaluationMemory->types[idx]) {
                 evaluationMemory->memory[idx].value = value;
+            }
+            else {
+                const kString errMsg = kStrMakeFromC("Cannot assign a different type to this variable");
+                kAddErrorT(&errMsg, node->offset, node->length, true, ERR_SEMANTIC_TYPE_MISMATCH);
+                kCheckErrors();
             }
 
             break;

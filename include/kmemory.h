@@ -53,7 +53,7 @@ static void kAddMemoryField(kRuntimeMemory *memory, const kString *key, const kV
 }
 
 [[nodiscard]]
-static size_t kFindMemoryField(const kRuntimeMemory *memory, kString *key) {
+static size_t kFindMemoryField(const kRuntimeMemory *memory, const kString *key) {
     for (size_t i = 0; i < memory->length; i++) {
         if (kStrEquals(&memory->memory[i].key, key))
             return  i;
@@ -62,7 +62,7 @@ static size_t kFindMemoryField(const kRuntimeMemory *memory, kString *key) {
 }
 
 [[nodiscard]]
-static kVariant *kGetMemoryValue(const kRuntimeMemory *memory, kString *key) {
+static kVariant *kGetMemoryValue(const kRuntimeMemory *memory, const kString *key) {
     const size_t field = kFindMemoryField(memory, key);
     if (field == (size_t)-1)
         return nullptr;

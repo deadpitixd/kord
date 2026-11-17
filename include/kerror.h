@@ -140,8 +140,11 @@ static void kErrorInit() {
 }
 
 static kError *kAddErrorT(const kString *msg, const size_t offset, const size_t length, const bool forceExit, const kErrorType error) {
+    if (!errorList) {
+        printf("Error list isn't initialized");
+    }
     if (errorListSize <= errorListLength + 1) {
-        errorListSize = (size_t)((float)errorListSize * 1.5);
+        errorListSize = (size_t)((float)errorListSize+1 * 1.5);
         kError *temp = (kError*)realloc(errorList, errorListSize * sizeof(kError));
         if (!temp) {
             printf("Failed to add element of error %d with message %s, couldn't resize error list", error, msg->buffer);
@@ -150,7 +153,7 @@ static kError *kAddErrorT(const kString *msg, const size_t offset, const size_t 
         errorList = temp;
     }
     errorList[errorListLength++] = (kError){.length = length, .offset = offset, .forceExit = forceExit, .errType = error, .msg = kStrDup(msg) };
-    return &errorList[errorListLength];
+    return &errorList[errorListLength-1];
 }
 
 static kError *kAddError(const kString *msg, const size_t offset, const size_t length, const bool forceExit) {
@@ -236,6 +239,13 @@ static void kPrintError(const kError *err, const kSourceFile *file, const char *
 
     printf("  %s | %s%s%s%s\n", padding, col_padding, kC_bg_magenta, squiggle, kC_reset);
     printf("%s%s%s\n", bgcolor ? bgcolor : kC_bg_red, err->msg.buffer, kC_reset);
+}
+
+
+#define kGetLocFromOffset(x, y, z) x, z - y
+[[nodiscard]]
+static size_t kGetLengthBetweenOffsets(const size_t offsetA, const size_t offsetB) {
+    return offsetB - offsetA;
 }
 
 #endif //KORD_KERROR_H
