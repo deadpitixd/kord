@@ -9,9 +9,18 @@
 #include <kmemory.h>
 #include <kparse.h>
 
-kRuntimeMemory mem;
+static kRuntimeMemory mem;
 
 int main(const int argc, char** argv) {
+#ifdef _WIN32
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    if (GetConsoleMode(hOut, &dwMode)) {
+        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        SetConsoleMode(hOut, dwMode);
+    }
+#endif
+
     if (argc == 1) {
         printf(
             "Kord - v" KORD_VERSION_STRING "\n"
@@ -67,15 +76,18 @@ int main(const int argc, char** argv) {
 
     printf("Is there a next node to the root? %d\n", rootNode->next != nullptr);
 
-    kString varNameStr = kStrMakeFromC("x");
+    kCheckErrors();
 
+#if KORD_ERROR
     printf("Got %zu fields in memory\n", evaluationMemory->length);
 
     char xVariableBuffer[1024];
-    kValAsString(kGetMemoryValue(&mem, &varNameStr), xVariableBuffer, 1023);
-
-    printf("Got value %s at field 'x' in memory\n", xVariableBuffer);
-
+    for (size_t i = 0; i < evaluationMemory->length; i++) {
+        const kString *varName = &evaluationMemory->memory[i].key;
+        kValAsString(kGetMemoryValue(&mem, varName), xVariableBuffer, 1023);
+        printf("Got value %s at field '%s' in memory\n", xVariableBuffer, varName->buffer);
+    }
+#endif
     return 0;
 }
 
