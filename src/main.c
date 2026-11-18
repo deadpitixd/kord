@@ -9,6 +9,10 @@
 #include <kmemory.h>
 #include <kparse.h>
 
+#include <llvm-c/Core.h>
+#include <llvm-c/Analysis.h>
+#include <llvm-c/Target.h>
+
 static kRuntimeMemory mem;
 
 int main(const int argc, char** argv) {
@@ -43,7 +47,11 @@ int main(const int argc, char** argv) {
         printf("Failed to load %s\n", argv[1]);
     }
 
-    printf("File:\n%s\nOf size: %ld\n",sourceFile, fileSize);
+    printf("File:\n%s\nOf size: %zu\n",sourceFile, fileSize);
+
+    if (fileSize <= 0) {
+        return 0;
+    }
 
     kLexer lexer = {
         .source = sourceFile, .cursor = 0, .sourceLength = fileSize,
@@ -64,7 +72,7 @@ int main(const int argc, char** argv) {
 
     printf("Program got %zu errors\n", errorListLength);
     kCheckErrors();
-    printf("Parser got %ld tokens\n", parser.tokenCount);
+    printf("Parser got %zu tokens\n", parser.tokenCount);
 
 
     kInitRuntimeMemory(&mem);
@@ -88,6 +96,36 @@ int main(const int argc, char** argv) {
         printf("Got value %s at field '%s' in memory\n", xVariableBuffer, varName->buffer);
     }
 #endif
+
+    LLVMInitializeNativeTarget();
+    LLVMInitializeNativeAsmPrinter();
+
+    LLVMContextRef context = LLVMContextCreate();
+
+    LLVMModuleRef module = LLVMModuleCreateWithNameInContext("kord_smoke_test", context);
+
+    LLVMTypeRef ret_type = LLVMInt32TypeInContext(context);
+    LLVMTypeRef func_type = LLVMFunctionType(ret_type, nullptr, 0, 0);
+    LLVMValueRef func = LLVMAddFunction(module, "main", func_type);
+
+    LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(context, func, "entry");
+    LLVMBuilderRef builder = LLVMCreateBuilderInContext(context);
+    LLVMPositionBuilderAtEnd(builder, entry);
+
+    LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(context), 0, 0);
+    LLVMBuildRet(builder, zero);
+
+    char* error = nullptr;
+    if (LLVMVerifyModule(module, LLVMAbortProcessAction, &error) != 0) {
+        LLVMDisposeMessage(error);
+    }
+
+    LLVMDumpModule(module);
+
+    LLVMDisposeBuilder(builder);
+    LLVMDisposeModule(module);
+    LLVMContextDispose(context);
+
     return 0;
 }
 
